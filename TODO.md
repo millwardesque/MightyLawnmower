@@ -8,12 +8,9 @@
 
 # Prototype: Cut the grass
 
-- Dirt tile
-- Grass tile
-
-- Grass spawner
-- Render sprites
-- Tile clicks make grass disappear
+- Initial ground state
+- Clear on click
+- Tile clicks make grass turn to dirt
 - Timer to turn dirt into grass
 - Show score for each grass patch cleared
 - Reset game button
@@ -22,6 +19,7 @@
 
 ## Out of scope:
 
+- Sprite images
 - Loading progress
 - Sound
 - Keyboard input
