@@ -2,7 +2,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { changeTile, computeGridCell } from './utils';
 import { DirtTile, GrassTile } from './tiles';
-import { TileGrid } from './types';
+import { Tile, TileGrid } from './types';
+import { Score } from './Score';
 
 const CELL_SIZE_IN_PX = 48;
 const NUM_ROWS = 3;
@@ -11,7 +12,12 @@ const GRASS_GROW_TIMER_DURATION = 1000;
 
 const GameCanvasContainer = styled.div`
   display: flex;
+  flex-direction: column;
   border: 1px dashed #f00;
+`;
+
+const GameCanvasGridContainer = styled.div`
+  display: flex;
 `;
 
 const GameCanvasGrid = styled.div<{ $numColumns: number; $numRows: number }>`
@@ -26,11 +32,30 @@ const GameCanvasGrid = styled.div<{ $numColumns: number; $numRows: number }>`
   cursor: default;
 `;
 
+const Button = styled.div`
+  background-color: grey;
+  padding: 8px;
+  cursor: pointer;
+`;
+
+const Header = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-content: center;
+`;
+
 export const GameCanvas: React.FC = () => {
   const gridRef = useRef<HTMLDivElement | null>(null);
+  const [score, setScore] = useState(0);
   const [gameTiles, setGameTiles] = useState<TileGrid>(
-    new Array(NUM_COLUMNS).fill(new Array(NUM_ROWS).fill('dirt'))
+    generateGameTiles(NUM_COLUMNS, NUM_ROWS, 'dirt')
   );
+
+  const resetGame = useCallback(() => {
+    setGameTiles(generateGameTiles(NUM_COLUMNS, NUM_ROWS, 'dirt'));
+    setScore(0);
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -60,23 +85,31 @@ export const GameCanvas: React.FC = () => {
         gridRef.current,
         clickEvent,
         gameTiles,
-        setGameTiles
+        setGameTiles,
+        score,
+        setScore
       );
     },
-    [gameTiles, setGameTiles]
+    [gameTiles, setGameTiles, score, setScore]
   );
 
   const cells = renderGameTiles(gameTiles);
 
   return (
-    <GameCanvasContainer ref={gridRef}>
-      <GameCanvasGrid
-        $numColumns={NUM_COLUMNS}
-        $numRows={NUM_ROWS}
-        onClick={onGameCanvasClick}
-      >
-        {cells}
-      </GameCanvasGrid>
+    <GameCanvasContainer>
+      <Header>
+        <Score score={score} />
+        <Button onClick={resetGame}>Reset</Button>
+      </Header>
+      <GameCanvasGridContainer ref={gridRef}>
+        <GameCanvasGrid
+          $numColumns={NUM_COLUMNS}
+          $numRows={NUM_ROWS}
+          onClick={onGameCanvasClick}
+        >
+          {cells}
+        </GameCanvasGrid>
+      </GameCanvasGridContainer>
     </GameCanvasContainer>
   );
 };
@@ -85,7 +118,9 @@ function handleGameCanvasClick(
   gameCanvasElement: HTMLDivElement,
   clickEvent: React.MouseEvent<HTMLDivElement, MouseEvent>,
   gameTiles: TileGrid,
-  setGameTiles: (newGameTiles: TileGrid) => void
+  setGameTiles: (newGameTiles: TileGrid) => void,
+  score: number,
+  setScore: (newScore: number) => void
 ): void {
   const canvasRect = gameCanvasElement.getBoundingClientRect();
 
@@ -107,7 +142,10 @@ function handleGameCanvasClick(
   );
 
   if (clickedCell !== undefined) {
-    changeTile(clickedCell, 'dirt', gameTiles, setGameTiles);
+    if (gameTiles[clickedCell.x][clickedCell.y] === 'grass') {
+      changeTile(clickedCell, 'dirt', gameTiles, setGameTiles);
+      setScore(score + 1);
+    }
   }
 }
 
@@ -141,4 +179,12 @@ function renderGameTiles(gameTiles: TileGrid): Array<React.ReactNode> {
   }
 
   return cells;
+}
+
+function generateGameTiles(
+  columns: number,
+  rows: number,
+  startTile: Tile
+): TileGrid {
+  return new Array(columns).fill(new Array(rows).fill(startTile));
 }
