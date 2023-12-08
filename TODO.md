@@ -8,9 +8,6 @@
 
 # Prototype: Cut the grass
 
-- Initial ground state
-- Clear on click
-- Tile clicks make grass turn to dirt
 - Timer to turn dirt into grass
 - Show score for each grass patch cleared
 - Reset game button

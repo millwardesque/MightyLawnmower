@@ -1,4 +1,3 @@
-import { cloneDeep } from 'lodash-es';
 import React, { useCallback, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { computeGridCell } from './utils';
@@ -49,33 +48,7 @@ export const GameCanvas: React.FC = () => {
     [gameTiles, setGameTiles]
   );
 
-  const cells: Array<React.ReactNode> = [];
-  for (let row = 0; row < NUM_ROWS; ++row) {
-    for (let column = 0; column < NUM_COLUMNS; ++column) {
-      const content = `${column}, ${row}`;
-      if (gameTiles[column][row] === 'grass') {
-        cells.push(
-          <GrassTile
-            key={`${column}, ${row}`}
-            $cellRow={row}
-            $cellColumn={column}
-          >
-            {content}
-          </GrassTile>
-        );
-      } else {
-        cells.push(
-          <DirtTile
-            key={`${column}, ${row}`}
-            $cellRow={row}
-            $cellColumn={column}
-          >
-            {content}
-          </DirtTile>
-        );
-      }
-    }
-  }
+  const cells = renderGameTiles(gameTiles);
 
   return (
     <GameCanvasContainer ref={gridRef}>
@@ -124,4 +97,36 @@ function handleGameCanvasClick(
     newGameTiles[clickedCell.x] = column;
     setGameTiles(newGameTiles);
   }
+}
+
+function renderGameTiles(gameTiles: TileGrid): Array<React.ReactNode> {
+  const cells: Array<React.ReactNode> = [];
+  for (let row = 0; row < NUM_ROWS; ++row) {
+    for (let column = 0; column < NUM_COLUMNS; ++column) {
+      const content = `${column}, ${row}`;
+      if (gameTiles[column][row] === 'grass') {
+        cells.push(
+          <GrassTile
+            key={`${column}, ${row}`}
+            $cellRow={row}
+            $cellColumn={column}
+          >
+            {content}
+          </GrassTile>
+        );
+      } else {
+        cells.push(
+          <DirtTile
+            key={`${column}, ${row}`}
+            $cellRow={row}
+            $cellColumn={column}
+          >
+            {content}
+          </DirtTile>
+        );
+      }
+    }
+  }
+
+  return cells;
 }
