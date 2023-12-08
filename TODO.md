@@ -8,7 +8,6 @@
 
 # Prototype: Cut the grass
 
-- Timer to turn dirt into grass
 - Show score for each grass patch cleared
 - Reset game button
 - After each patch cleared, timer speeds up

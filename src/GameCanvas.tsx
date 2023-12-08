@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { computeGridCell } from './utils';
 import { DirtTile, GrassTile } from './tiles';
@@ -25,10 +25,33 @@ const GameCanvasGrid = styled.div<{ $numColumns: number; $numRows: number }>`
 
 export const GameCanvas: React.FC = () => {
   const gridRef = useRef<HTMLDivElement | null>(null);
-
   const [gameTiles, setGameTiles] = useState<TileGrid>(
     new Array(NUM_COLUMNS).fill(new Array(NUM_ROWS).fill('grass'))
   );
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const x = Math.floor(Math.random() * NUM_COLUMNS);
+      const y = Math.floor(Math.random() * NUM_ROWS);
+
+      const column = [...gameTiles[x]];
+      console.log('[CPM] Triggered', x, y, column[y]); // @DEBUG;
+
+      if (column[y] === 'dirt') {
+        console.log('[CPM] Growing grass'); // @DEBUG
+        column[y] = 'grass';
+
+        const newGameTiles = [...gameTiles];
+        newGameTiles[x] = column;
+        setGameTiles(newGameTiles);
+      }
+    }, 1000);
+
+    return () => {
+      console.log('[CPM] Cleaning up'); // @DEBUG
+      clearInterval(timer);
+    };
+  }, [gameTiles, setGameTiles]);
 
   const onGameCanvasClick = useCallback(
     (clickEvent: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
