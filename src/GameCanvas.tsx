@@ -1,11 +1,13 @@
-import React, { useCallback, useRef } from 'react';
+import { cloneDeep } from 'lodash-es';
+import React, { useCallback, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { computeGridCell } from './utils';
 import { DirtTile, GrassTile } from './tiles';
+import { TileGrid } from './types';
 
 const CELL_SIZE_IN_PX = 48;
-const NUM_ROWS = 16;
-const NUM_COLUMNS = 24;
+const NUM_ROWS = 3;
+const NUM_COLUMNS = 3;
 
 const GameCanvasContainer = styled.div`
   display: flex;
@@ -25,6 +27,10 @@ const GameCanvasGrid = styled.div<{ $numColumns: number; $numRows: number }>`
 export const GameCanvas: React.FC = () => {
   const gridRef = useRef<HTMLDivElement | null>(null);
 
+  const [gameTiles, setGameTiles] = useState<TileGrid>(
+    new Array(NUM_COLUMNS).fill(new Array(NUM_ROWS).fill('grass'))
+  );
+
   const onGameCanvasClick = useCallback(
     (clickEvent: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       if (gridRef.current === null) {
@@ -33,16 +39,21 @@ export const GameCanvas: React.FC = () => {
         );
       }
 
-      handleGameCanvasClick(gridRef.current, clickEvent);
+      handleGameCanvasClick(
+        gridRef.current,
+        clickEvent,
+        gameTiles,
+        setGameTiles
+      );
     },
-    []
+    [gameTiles, setGameTiles]
   );
 
   const cells: Array<React.ReactNode> = [];
   for (let row = 0; row < NUM_ROWS; ++row) {
     for (let column = 0; column < NUM_COLUMNS; ++column) {
-      const content = `(${column}, ${row})`;
-      if (row % 2 === 0) {
+      const content = `${column}, ${row}`;
+      if (gameTiles[column][row] === 'grass') {
         cells.push(
           <GrassTile
             key={`${column}, ${row}`}
@@ -81,7 +92,9 @@ export const GameCanvas: React.FC = () => {
 
 function handleGameCanvasClick(
   gameCanvasElement: HTMLDivElement,
-  clickEvent: React.MouseEvent<HTMLDivElement, MouseEvent>
+  clickEvent: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  gameTiles: TileGrid,
+  setGameTiles: (newGameTiles: TileGrid) => void
 ): void {
   const canvasRect = gameCanvasElement.getBoundingClientRect();
 
@@ -102,7 +115,13 @@ function handleGameCanvasClick(
     { x: CELL_SIZE_IN_PX, y: CELL_SIZE_IN_PX }
   );
 
-  console.log('[CPM] Grid click', {
-    ...clickedCell,
-  }); // @DEBUG
+  if (clickedCell !== undefined) {
+    // @TODO This is way more complicated than I should be and I can't figure out why...
+    const column = [...gameTiles[clickedCell.x]];
+    column[clickedCell.y] = 'dirt';
+
+    const newGameTiles = [...gameTiles];
+    newGameTiles[clickedCell.x] = column;
+    setGameTiles(newGameTiles);
+  }
 }
