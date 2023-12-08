@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { computeGridCell } from './utils';
+import { changeTile, computeGridCell } from './utils';
 import { DirtTile, GrassTile } from './tiles';
 import { TileGrid } from './types';
 
 const CELL_SIZE_IN_PX = 48;
 const NUM_ROWS = 3;
 const NUM_COLUMNS = 3;
+const GRASS_GROW_TIMER_DURATION = 1000;
 
 const GameCanvasContainer = styled.div`
   display: flex;
@@ -34,21 +35,13 @@ export const GameCanvas: React.FC = () => {
       const x = Math.floor(Math.random() * NUM_COLUMNS);
       const y = Math.floor(Math.random() * NUM_ROWS);
 
-      const column = [...gameTiles[x]];
-      console.log('[CPM] Triggered', x, y, column[y]); // @DEBUG;
-
-      if (column[y] === 'dirt') {
-        console.log('[CPM] Growing grass'); // @DEBUG
-        column[y] = 'grass';
-
-        const newGameTiles = [...gameTiles];
-        newGameTiles[x] = column;
-        setGameTiles(newGameTiles);
+      const currentTile = gameTiles[x][y];
+      if (currentTile === 'dirt') {
+        changeTile({ x, y }, 'grass', gameTiles, setGameTiles);
       }
-    }, 1000);
+    }, GRASS_GROW_TIMER_DURATION);
 
     return () => {
-      console.log('[CPM] Cleaning up'); // @DEBUG
       clearInterval(timer);
     };
   }, [gameTiles, setGameTiles]);
@@ -112,13 +105,7 @@ function handleGameCanvasClick(
   );
 
   if (clickedCell !== undefined) {
-    // @TODO This is way more complicated than I should be and I can't figure out why...
-    const column = [...gameTiles[clickedCell.x]];
-    column[clickedCell.y] = 'dirt';
-
-    const newGameTiles = [...gameTiles];
-    newGameTiles[clickedCell.x] = column;
-    setGameTiles(newGameTiles);
+    changeTile(clickedCell, 'dirt', gameTiles, setGameTiles);
   }
 }
 

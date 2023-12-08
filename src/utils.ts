@@ -1,4 +1,4 @@
-import { Coord2D } from './types';
+import { Coord2D, Tile, TileGrid } from './types';
 
 export function computeGridCell(
   clickCoord: Coord2D,
@@ -21,4 +21,19 @@ export function computeGridCell(
   const cellY = Math.floor(normalizedY / cellDimensions.y);
 
   return { x: cellX, y: cellY };
+}
+
+export function changeTile(
+  position: Coord2D,
+  newValue: Tile,
+  tileGrid: TileGrid,
+  setTileGrid: (newTileGrid: TileGrid) => void
+): void {
+  // @TODO This is way more complicated than I should be and I can't figure out why...
+  const columnData = [...tileGrid[position.x]];
+  columnData[position.y] = newValue;
+
+  const newGrid = [...tileGrid];
+  newGrid[position.x] = columnData;
+  setTileGrid(newGrid);
 }
