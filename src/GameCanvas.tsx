@@ -22,12 +22,14 @@ const GameCanvasGrid = styled.div<{ $numColumns: number; $numRows: number }>`
   grid-template-rows: repeat(
     ${({ $numRows }) => `${$numRows}, ${CELL_SIZE_IN_PX}px`}
   );
+
+  cursor: default;
 `;
 
 export const GameCanvas: React.FC = () => {
   const gridRef = useRef<HTMLDivElement | null>(null);
   const [gameTiles, setGameTiles] = useState<TileGrid>(
-    new Array(NUM_COLUMNS).fill(new Array(NUM_ROWS).fill('grass'))
+    new Array(NUM_COLUMNS).fill(new Array(NUM_ROWS).fill('dirt'))
   );
 
   useEffect(() => {
