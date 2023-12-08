@@ -3,6 +3,8 @@ export type Coord2D = {
   y: number;
 };
 
+export type GameState = 'running' | 'game-over';
+
 export type Tile = 'dirt' | 'grass';
 
 export type TileGrid = Array<Array<Tile>>;

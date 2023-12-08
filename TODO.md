@@ -9,10 +9,16 @@
 
 # Prototype: Cut the grass
 
-- After each patch cleared, timer speeds up
-- Game over when all patches are overgrown
+- Trigger Game Over state when all patches are overgrown
+- Clicking dirt exposes lava, which can't grow again
+- Expand grid size over time (every 10 points?)
+- Start game state
+
+# Engine stuff
+
 - Refactor GameCanvas to Game / GameGrid components and logic
-- Expand grid size over time
+- Separate game states into separate game state components
+- Probably state manager
 
 ## Out of scope:
 

@@ -2,22 +2,28 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { changeTile, computeGridCell } from './utils';
 import { DirtTile, GrassTile } from './tiles';
-import { Tile, TileGrid } from './types';
+import { GameState, Tile, TileGrid } from './types';
 import { Score } from './Score';
+import { GameOverScreen } from './GameOverScreen';
 
 const CELL_SIZE_IN_PX = 48;
 const NUM_ROWS = 3;
 const NUM_COLUMNS = 3;
-const GRASS_GROW_TIMER_DURATION = 1000;
+const GRASS_GROW_TIMER_INITIAL_DURATION = 3000;
+const GRASS_GROW_TIMER_REDUCTION = 0.9;
 
 const GameCanvasContainer = styled.div`
   display: flex;
   flex-direction: column;
+  padding: 24px;
   border: 1px dashed #f00;
+  min-width: 600px;
+  align-content: center;
 `;
 
 const GameCanvasGridContainer = styled.div`
   display: flex;
+  align-self: center;
 `;
 
 const GameCanvasGrid = styled.div<{ $numColumns: number; $numRows: number }>`
@@ -51,11 +57,23 @@ export const GameCanvas: React.FC = () => {
   const [gameTiles, setGameTiles] = useState<TileGrid>(
     generateGameTiles(NUM_COLUMNS, NUM_ROWS, 'dirt')
   );
+  const [grassTimer, setGrassTimer] = useState(
+    GRASS_GROW_TIMER_INITIAL_DURATION
+  );
+
+  const [gameState, setGameState] = useState<GameState>('game-over');
 
   const resetGame = useCallback(() => {
     setGameTiles(generateGameTiles(NUM_COLUMNS, NUM_ROWS, 'dirt'));
+    setGrassTimer(GRASS_GROW_TIMER_INITIAL_DURATION);
     setScore(0);
-  }, []);
+  }, [setGameTiles, setGrassTimer, setScore]);
+
+  useEffect(() => {
+    if (gameState === 'running') {
+      resetGame();
+    }
+  }, [gameState, resetGame]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -66,12 +84,12 @@ export const GameCanvas: React.FC = () => {
       if (currentTile === 'dirt') {
         changeTile({ x, y }, 'grass', gameTiles, setGameTiles);
       }
-    }, GRASS_GROW_TIMER_DURATION);
+    }, grassTimer);
 
     return () => {
       clearInterval(timer);
     };
-  }, [gameTiles, setGameTiles]);
+  }, [gameTiles, grassTimer, setGameTiles]);
 
   const onGameCanvasClick = useCallback(
     (clickEvent: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -87,10 +105,12 @@ export const GameCanvas: React.FC = () => {
         gameTiles,
         setGameTiles,
         score,
-        setScore
+        setScore,
+        grassTimer,
+        setGrassTimer
       );
     },
-    [gameTiles, setGameTiles, score, setScore]
+    [gameTiles, setGameTiles, score, setScore, grassTimer, setGrassTimer]
   );
 
   const cells = renderGameTiles(gameTiles);
@@ -99,17 +119,25 @@ export const GameCanvas: React.FC = () => {
     <GameCanvasContainer>
       <Header>
         <Score score={score} />
-        <Button onClick={resetGame}>Reset</Button>
+        <div>{grassTimer}s</div>
+        {gameState === 'running' && <Button onClick={resetGame}>Reset</Button>}
       </Header>
-      <GameCanvasGridContainer ref={gridRef}>
-        <GameCanvasGrid
-          $numColumns={NUM_COLUMNS}
-          $numRows={NUM_ROWS}
-          onClick={onGameCanvasClick}
-        >
-          {cells}
-        </GameCanvasGrid>
-      </GameCanvasGridContainer>
+      {gameState === 'running' && (
+        <GameCanvasGridContainer ref={gridRef}>
+          <GameCanvasGrid
+            $numColumns={NUM_COLUMNS}
+            $numRows={NUM_ROWS}
+            onClick={onGameCanvasClick}
+          >
+            {cells}
+          </GameCanvasGrid>
+        </GameCanvasGridContainer>
+      )}
+      {gameState === 'game-over' && (
+        <GameOverScreen>
+          <Button onClick={() => setGameState('running')}>Reset</Button>
+        </GameOverScreen>
+      )}
     </GameCanvasContainer>
   );
 };
@@ -120,7 +148,9 @@ function handleGameCanvasClick(
   gameTiles: TileGrid,
   setGameTiles: (newGameTiles: TileGrid) => void,
   score: number,
-  setScore: (newScore: number) => void
+  setScore: (newScore: number) => void,
+  grassTimer: number,
+  setGrassTimer: (newGrassTimer: number) => void
 ): void {
   const canvasRect = gameCanvasElement.getBoundingClientRect();
 
@@ -141,10 +171,19 @@ function handleGameCanvasClick(
     { x: CELL_SIZE_IN_PX, y: CELL_SIZE_IN_PX }
   );
 
+  console.log('[CPM] Clicked Cell', {
+    clickedCell,
+    clickEvent,
+    clickPosition,
+    topLeftCorner,
+    bottomRightCorner,
+  }); // @DEBUG
+
   if (clickedCell !== undefined) {
     if (gameTiles[clickedCell.x][clickedCell.y] === 'grass') {
       changeTile(clickedCell, 'dirt', gameTiles, setGameTiles);
       setScore(score + 1);
+      setGrassTimer(Math.max(100, grassTimer * GRASS_GROW_TIMER_REDUCTION));
     }
   }
 }
