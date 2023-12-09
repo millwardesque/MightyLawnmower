@@ -9,10 +9,9 @@
 
 # Prototype: Cut the grass
 
-- Trigger Game Over state when all patches are overgrown
+- Start game state
 - Clicking dirt exposes lava, which can't grow again
 - Expand grid size over time (every 10 points?)
-- Start game state
 
 # Engine stuff
 

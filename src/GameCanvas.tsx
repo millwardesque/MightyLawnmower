@@ -91,6 +91,12 @@ export const GameCanvas: React.FC = () => {
     };
   }, [gameTiles, grassTimer, setGameTiles]);
 
+  useEffect(() => {
+    if (gameState === 'running' && isGameOver(gameTiles)) {
+      setGameState('game-over');
+    }
+  }, [gameState, gameTiles, setGameState]);
+
   const onGameCanvasClick = useCallback(
     (clickEvent: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       if (gridRef.current === null) {
@@ -226,4 +232,8 @@ function generateGameTiles(
   startTile: Tile
 ): TileGrid {
   return new Array(columns).fill(new Array(rows).fill(startTile));
+}
+
+function isGameOver(gameTiles: TileGrid): boolean {
+  return gameTiles.flat().every((tile) => tile === 'grass');
 }
