@@ -3,7 +3,7 @@ export type Coord2D = {
   y: number;
 };
 
-export type GameState = 'running' | 'game-over';
+export type GameState = 'splash-screen' | 'running' | 'game-over';
 
 export type Tile = 'dirt' | 'grass';
 

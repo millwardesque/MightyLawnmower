@@ -5,6 +5,7 @@ import { DirtTile, GrassTile } from './tiles';
 import { GameState, Tile, TileGrid } from './types';
 import { Score } from './Score';
 import { GameOverScreen } from './GameOverScreen';
+import { GameStartScreen } from './GameStartScreen';
 
 const CELL_SIZE_IN_PX = 48;
 const NUM_ROWS = 3;
@@ -61,7 +62,7 @@ export const GameCanvas: React.FC = () => {
     GRASS_GROW_TIMER_INITIAL_DURATION
   );
 
-  const [gameState, setGameState] = useState<GameState>('game-over');
+  const [gameState, setGameState] = useState<GameState>('splash-screen');
 
   const resetGame = useCallback(() => {
     setGameTiles(generateGameTiles(NUM_COLUMNS, NUM_ROWS, 'dirt'));
@@ -123,11 +124,20 @@ export const GameCanvas: React.FC = () => {
 
   return (
     <GameCanvasContainer>
-      <Header>
-        <Score score={score} />
-        <div>{grassTimer}s</div>
-        {gameState === 'running' && <Button onClick={resetGame}>Reset</Button>}
-      </Header>
+      {gameState !== 'splash-screen' && (
+        <Header>
+          <Score score={score} />
+          <div>{grassTimer}s</div>
+          {gameState === 'running' && (
+            <Button onClick={resetGame}>Reset</Button>
+          )}
+        </Header>
+      )}
+      {gameState === 'splash-screen' && (
+        <GameStartScreen>
+          <Button onClick={() => setGameState('running')}>Start</Button>
+        </GameStartScreen>
+      )}
       {gameState === 'running' && (
         <GameCanvasGridContainer ref={gridRef}>
           <GameCanvasGrid

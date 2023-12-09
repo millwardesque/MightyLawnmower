@@ -1,15 +1,12 @@
 # Scaffolding
 
+- Github repo
 - ESLint config
-
-# Bugs
-
-- Clicking the very right/bottom edge of the grid computes a cell that doesn't exist
-- Grass-grower doesn't reset timer when game restarts.
+- CI/CD
+- Itch.io
 
 # Prototype: Cut the grass
 
-- Start game state
 - Clicking dirt exposes lava, which can't grow again
 - Expand grid size over time (every 10 points?)
 
