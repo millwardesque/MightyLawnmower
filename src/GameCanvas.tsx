@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { changeTile, computeGridCell } from './utils';
-import { DirtTile, GrassTile } from './tiles';
+import { DirtTile, GrassTile, LavaTile } from './tiles';
 import { GameState, Tile, TileGrid } from './types';
 import { Score } from './Score';
 import { GameOverScreen } from './GameOverScreen';
@@ -151,7 +151,14 @@ export const GameCanvas: React.FC = () => {
       )}
       {gameState === 'game-over' && (
         <GameOverScreen>
-          <Button onClick={() => setGameState('running')}>Reset</Button>
+          <Button
+            onClick={() => {
+              resetGame();
+              setGameState('running');
+            }}
+          >
+            Reset
+          </Button>
         </GameOverScreen>
       )}
     </GameCanvasContainer>
@@ -200,6 +207,9 @@ function handleGameCanvasClick(
       changeTile(clickedCell, 'dirt', gameTiles, setGameTiles);
       setScore(score + 1);
       setGrassTimer(Math.max(100, grassTimer * GRASS_GROW_TIMER_REDUCTION));
+    } else if (gameTiles[clickedCell.x][clickedCell.y] === 'dirt') {
+      changeTile(clickedCell, 'lava', gameTiles, setGameTiles);
+      setGrassTimer(Math.max(100, grassTimer * GRASS_GROW_TIMER_REDUCTION));
     }
   }
 }
@@ -218,6 +228,16 @@ function renderGameTiles(gameTiles: TileGrid): Array<React.ReactNode> {
           >
             {content}
           </GrassTile>
+        );
+      } else if (gameTiles[column][row] === 'lava') {
+        cells.push(
+          <LavaTile
+            key={`${column}, ${row}`}
+            $cellRow={row}
+            $cellColumn={column}
+          >
+            {content}
+          </LavaTile>
         );
       } else {
         cells.push(
@@ -245,5 +265,5 @@ function generateGameTiles(
 }
 
 function isGameOver(gameTiles: TileGrid): boolean {
-  return gameTiles.flat().every((tile) => tile === 'grass');
+  return gameTiles.flat().every((tile) => tile !== 'dirt');
 }

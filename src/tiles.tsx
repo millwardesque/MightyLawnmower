@@ -16,3 +16,7 @@ export const DirtTile = styled(CellTile)`
 export const GrassTile = styled(CellTile)`
   background-color: green;
 `;
+
+export const LavaTile = styled(CellTile)`
+  background-color: orange;
+`;

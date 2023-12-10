@@ -1,13 +1,11 @@
 # Scaffolding
 
-- Github repo
 - ESLint config
 - CI/CD
 - Itch.io
 
 # Prototype: Cut the grass
 
-- Clicking dirt exposes lava, which can't grow again
 - Expand grid size over time (every 10 points?)
 
 # Engine stuff

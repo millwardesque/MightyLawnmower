@@ -5,6 +5,6 @@ export type Coord2D = {
 
 export type GameState = 'splash-screen' | 'running' | 'game-over';
 
-export type Tile = 'dirt' | 'grass';
+export type Tile = 'dirt' | 'grass' | 'lava';
 
 export type TileGrid = Array<Array<Tile>>;
