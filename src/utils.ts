@@ -1,4 +1,7 @@
-import { Coord2D, Tile, TileGrid } from './types';
+import { Coord2D, Tile, TileFillMode, TileGrid } from './types';
+
+const MAX_ASSUMED_COLUMNS = 1000;
+const MAX_ASSUMED_ROWS = 1000;
 
 export function changeTile(
   position: Coord2D,
@@ -45,8 +48,66 @@ export function computeGridCell(
  */
 export function expandGrid(
   gameTiles: TileGrid,
-  cellsPerDirection: number,
-  fillTile: Tile
+  cellsPerEdge: number,
+  fillMode: TileFillMode
 ): TileGrid {
-  return gameTiles;
+  if (gameTiles[0] === undefined) {
+    throw new Error(
+      'Error expanding grid: First grid column has uninitialized rows'
+    );
+  }
+  const oldColumnCount = gameTiles.length;
+  const oldRowCount = gameTiles[0].length;
+  const newColumnCount = oldColumnCount + cellsPerEdge * 2;
+  const newRowCount = oldRowCount + cellsPerEdge * 2;
+
+  /**
+   * Since we don't want to mutate the original grid, create a grid with all tiles set to the new fill mode
+   * and then set internal values accordingly.
+   *
+   * This is super slow, but easy to grok and the grid is small enough that it won't really matter.
+   */
+  let newGrid = generateGameTiles(newColumnCount, newRowCount, fillMode);
+
+  /**
+   * Loop starts at cellsPerEdge instead of 0 because we need to shift the values
+   * from the old grid by cellsPerEdge
+   */
+  for (let x = 0; x < oldColumnCount; x++) {
+    for (let y = 0; y < oldRowCount; y++) {
+      newGrid = changeTile(
+        { x: x + cellsPerEdge, y: y + cellsPerEdge },
+        gameTiles[x][y],
+        newGrid
+      );
+    }
+  }
+  return newGrid;
+}
+
+export function generateGameTiles(
+  columns: number,
+  rows: number,
+  startTile: Tile
+): TileGrid {
+  if (columns > MAX_ASSUMED_COLUMNS || rows > MAX_ASSUMED_ROWS) {
+    throw new Error(
+      `This code is written assuming grids no larger than ${MAX_ASSUMED_COLUMNS} x ${MAX_ASSUMED_ROWS}.  Specified dimensions are ${columns} x ${rows}. Check the code to make sure this is still valid`
+    );
+  }
+
+  return new Array(columns).fill(new Array(rows).fill(startTile));
+}
+
+export function getTileGridDimensions(grid: TileGrid): Coord2D {
+  if (grid[0] === undefined) {
+    throw new Error(
+      'Error getting grid dimensions: First grid column has uninitialized row array'
+    );
+  }
+
+  return {
+    x: grid.length,
+    y: grid[0].length,
+  };
 }

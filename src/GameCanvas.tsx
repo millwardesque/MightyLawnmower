@@ -1,15 +1,23 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { changeTile, computeGridCell } from './utils';
+import {
+  changeTile,
+  computeGridCell,
+  expandGrid,
+  generateGameTiles,
+  getTileGridDimensions,
+} from './utils';
 import { DirtTile, GrassTile, LavaTile } from './tiles';
-import { GameState, Tile, TileGrid } from './types';
+import { GameState, TileGrid } from './types';
 import { Score } from './Score';
 import { GameOverScreen } from './GameOverScreen';
 import { GameStartScreen } from './GameStartScreen';
 
 const CELL_SIZE_IN_PX = 48;
-const NUM_ROWS = 3;
-const NUM_COLUMNS = 3;
+const CELLS_PER_EXPANSION = 1;
+const EXPAND_GRID_MULTIPLE = 10;
+const INITIAL_NUM_ROWS = 3;
+const INITIAL_NUM_COLUMNS = 3;
 const GRASS_GROW_TIMER_INITIAL_DURATION = 3000;
 const GRASS_GROW_TIMER_REDUCTION = 0.9;
 
@@ -56,16 +64,19 @@ export const GameCanvas: React.FC = () => {
   const gridRef = useRef<HTMLDivElement | null>(null);
   const [score, setScore] = useState(0);
   const [gameTiles, setGameTiles] = useState<TileGrid>(
-    generateGameTiles(NUM_COLUMNS, NUM_ROWS, 'dirt')
+    generateGameTiles(INITIAL_NUM_COLUMNS, INITIAL_NUM_ROWS, 'dirt')
   );
   const [grassTimer, setGrassTimer] = useState(
     GRASS_GROW_TIMER_INITIAL_DURATION
   );
+  const [shouldExpandGrid, setShouldExpandGrid] = useState(false);
 
   const [gameState, setGameState] = useState<GameState>('splash-screen');
 
   const resetGame = useCallback(() => {
-    setGameTiles(generateGameTiles(NUM_COLUMNS, NUM_ROWS, 'dirt'));
+    setGameTiles(
+      generateGameTiles(INITIAL_NUM_COLUMNS, INITIAL_NUM_ROWS, 'dirt')
+    );
     setGrassTimer(GRASS_GROW_TIMER_INITIAL_DURATION);
     setScore(0);
   }, [setGameTiles, setGrassTimer, setScore]);
@@ -78,8 +89,9 @@ export const GameCanvas: React.FC = () => {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      const x = Math.floor(Math.random() * NUM_COLUMNS);
-      const y = Math.floor(Math.random() * NUM_ROWS);
+      const gridDimensions = getTileGridDimensions(gameTiles);
+      const x = Math.floor(Math.random() * gridDimensions.x);
+      const y = Math.floor(Math.random() * gridDimensions.y);
 
       const currentTile = gameTiles[x][y];
       if (currentTile === 'dirt') {
@@ -98,6 +110,26 @@ export const GameCanvas: React.FC = () => {
       setGameState('game-over');
     }
   }, [gameState, gameTiles, setGameState]);
+
+  useEffect(() => {
+    if (score > 0 && score % EXPAND_GRID_MULTIPLE === 0) {
+      setShouldExpandGrid(true);
+    }
+  }, [score, setShouldExpandGrid]);
+
+  useEffect(() => {
+    if (shouldExpandGrid) {
+      const newGameTiles = expandGrid(gameTiles, CELLS_PER_EXPANSION, 'dirt');
+      setGameTiles(newGameTiles);
+      setShouldExpandGrid(false);
+    }
+  }, [
+    gameState,
+    gameTiles,
+    setGameTiles,
+    shouldExpandGrid,
+    setShouldExpandGrid,
+  ]);
 
   const onGameCanvasClick = useCallback(
     (clickEvent: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -122,6 +154,7 @@ export const GameCanvas: React.FC = () => {
   );
 
   const cells = renderGameTiles(gameTiles);
+  const gridDimensions = getTileGridDimensions(gameTiles);
 
   return (
     <GameCanvasContainer>
@@ -142,8 +175,8 @@ export const GameCanvas: React.FC = () => {
       {gameState === 'running' && (
         <GameCanvasGridContainer ref={gridRef}>
           <GameCanvasGrid
-            $numColumns={NUM_COLUMNS}
-            $numRows={NUM_ROWS}
+            $numColumns={gridDimensions.x}
+            $numRows={gridDimensions.y}
             onClick={onGameCanvasClick}
           >
             {cells}
@@ -219,8 +252,10 @@ function handleGameCanvasClick(
 
 function renderGameTiles(gameTiles: TileGrid): Array<React.ReactNode> {
   const cells: Array<React.ReactNode> = [];
-  for (let row = 0; row < NUM_ROWS; ++row) {
-    for (let column = 0; column < NUM_COLUMNS; ++column) {
+  const gridDimensions = getTileGridDimensions(gameTiles);
+
+  for (let row = 0; row < gridDimensions.y; ++row) {
+    for (let column = 0; column < gridDimensions.x; ++column) {
       const content = `${column}, ${row}`;
       if (gameTiles[column][row] === 'grass') {
         cells.push(
@@ -257,14 +292,6 @@ function renderGameTiles(gameTiles: TileGrid): Array<React.ReactNode> {
   }
 
   return cells;
-}
-
-function generateGameTiles(
-  columns: number,
-  rows: number,
-  startTile: Tile
-): TileGrid {
-  return new Array(columns).fill(new Array(rows).fill(startTile));
 }
 
 function isGameOver(gameTiles: TileGrid): boolean {
