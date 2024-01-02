@@ -83,7 +83,8 @@ export const GameCanvas: React.FC = () => {
 
       const currentTile = gameTiles[x][y];
       if (currentTile === 'dirt') {
-        changeTile({ x, y }, 'grass', gameTiles, setGameTiles);
+        const updatedGrid = changeTile({ x, y }, 'grass', gameTiles);
+        setGameTiles(updatedGrid);
       }
     }, grassTimer);
 
@@ -204,11 +205,13 @@ function handleGameCanvasClick(
 
   if (clickedCell !== undefined) {
     if (gameTiles[clickedCell.x][clickedCell.y] === 'grass') {
-      changeTile(clickedCell, 'dirt', gameTiles, setGameTiles);
+      const updatedGrid = changeTile(clickedCell, 'dirt', gameTiles);
+      setGameTiles(updatedGrid);
       setScore(score + 1);
       setGrassTimer(Math.max(100, grassTimer * GRASS_GROW_TIMER_REDUCTION));
     } else if (gameTiles[clickedCell.x][clickedCell.y] === 'dirt') {
-      changeTile(clickedCell, 'lava', gameTiles, setGameTiles);
+      const updatedGrid = changeTile(clickedCell, 'lava', gameTiles);
+      setGameTiles(updatedGrid);
       setGrassTimer(Math.max(100, grassTimer * GRASS_GROW_TIMER_REDUCTION));
     }
   }

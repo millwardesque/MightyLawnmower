@@ -1,5 +1,20 @@
 import { Coord2D, Tile, TileGrid } from './types';
 
+export function changeTile(
+  position: Coord2D,
+  newValue: Tile,
+  tileGrid: TileGrid
+): TileGrid {
+  // @TODO This is way more complicated than I should be and I can't figure out why...
+  const columnData = [...tileGrid[position.x]];
+  columnData[position.y] = newValue;
+
+  const newGrid = [...tileGrid];
+  newGrid[position.x] = columnData;
+
+  return newGrid;
+}
+
 export function computeGridCell(
   clickCoord: Coord2D,
   gridTopLeft: Coord2D,
@@ -23,17 +38,15 @@ export function computeGridCell(
   return { x: cellX, y: cellY };
 }
 
-export function changeTile(
-  position: Coord2D,
-  newValue: Tile,
-  tileGrid: TileGrid,
-  setTileGrid: (newTileGrid: TileGrid) => void
-): void {
-  // @TODO This is way more complicated than I should be and I can't figure out why...
-  const columnData = [...tileGrid[position.x]];
-  columnData[position.y] = newValue;
-
-  const newGrid = [...tileGrid];
-  newGrid[position.x] = columnData;
-  setTileGrid(newGrid);
+/**
+ * Expands the tile grid outward in all directions
+ * @param gameTiles
+ * @param fillTile
+ */
+export function expandGrid(
+  gameTiles: TileGrid,
+  cellsPerDirection: number,
+  fillTile: Tile
+): TileGrid {
+  return gameTiles;
 }

@@ -1,4 +1,4 @@
-import { computeGridCell } from './utils';
+import { computeGridCell, expandGrid } from './utils';
 
 const GRID_LEFT = 2;
 const GRID_RIGHT = 66;
@@ -16,6 +16,11 @@ const CELL_LEFT = 0;
 const CELL_RIGHT = Math.floor((GRID_RIGHT - 1 - GRID_LEFT) / CELL_WIDTH);
 const CELL_TOP = 0;
 const CELL_BOTTOM = Math.floor((GRID_BOTTOM - 1 - GRID_TOP) / CELL_HEIGHT);
+
+describe('changeTile', () => {
+  test.todo('preserves all elements in the grid except the one specified');
+  test.todo('throws an error if an position outside of the grid is specified');
+});
 
 describe('computeGridCell', () => {
   test.each([
@@ -68,5 +73,17 @@ describe('computeGridCell', () => {
         )
       ).toEqual(expectedCell);
     }
+  );
+});
+
+describe('expandGrid', () => {
+  test.todo('throw an error is a negative size is requested');
+  test.todo('returns the same grid if the a size of zero is requested');
+  test.todo(
+    'increases the size of the grid by the specified amount in all directions'
+  );
+  test.todo('fills in the new cells with the request type');
+  test.todo(
+    'shifts all existing cells down and to the right by the specified amount'
   );
 });
