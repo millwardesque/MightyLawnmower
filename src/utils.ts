@@ -8,14 +8,19 @@ export function changeTile(
   newValue: Tile,
   tileGrid: TileGrid
 ): TileGrid {
-  // @TODO This is way more complicated than I should be and I can't figure out why...
-  const columnData = [...tileGrid[position.x]];
-  columnData[position.y] = newValue;
-
-  const newGrid = [...tileGrid];
-  newGrid[position.x] = columnData;
+  const newGrid = cloneGrid(tileGrid);
+  newGrid[position.x][position.y] = newValue;
 
   return newGrid;
+}
+
+export function cloneGrid(grid: TileGrid): TileGrid {
+  const clonedGrid = [...grid];
+  clonedGrid.forEach((rowData, x) => {
+    clonedGrid[x] = [...rowData];
+  });
+
+  return clonedGrid;
 }
 
 export function computeGridCell(
@@ -67,19 +72,11 @@ export function expandGrid(
    *
    * This is super slow, but easy to grok and the grid is small enough that it won't really matter.
    */
-  let newGrid = generateGameTiles(newColumnCount, newRowCount, fillMode);
+  const newGrid = generateGameTiles(newColumnCount, newRowCount, fillMode);
 
-  /**
-   * Loop starts at cellsPerEdge instead of 0 because we need to shift the values
-   * from the old grid by cellsPerEdge
-   */
   for (let x = 0; x < oldColumnCount; x++) {
     for (let y = 0; y < oldRowCount; y++) {
-      newGrid = changeTile(
-        { x: x + cellsPerEdge, y: y + cellsPerEdge },
-        gameTiles[x][y],
-        newGrid
-      );
+      newGrid[x + cellsPerEdge][y + cellsPerEdge] = gameTiles[x][y];
     }
   }
   return newGrid;
@@ -96,7 +93,12 @@ export function generateGameTiles(
     );
   }
 
-  return new Array(columns).fill(new Array(rows).fill(startTile));
+  const grid = new Array<Array<Tile>>(columns);
+  for (let x = 0; x < columns; ++x) {
+    grid[x] = new Array<Tile>(rows).fill(startTile);
+  }
+
+  return grid;
 }
 
 export function getTileGridDimensions(grid: TileGrid): Coord2D {

@@ -1,4 +1,4 @@
-import { computeGridCell, expandGrid } from './utils';
+import { changeTile, computeGridCell, generateGameTiles } from './utils';
 
 const GRID_LEFT = 2;
 const GRID_RIGHT = 66;
@@ -18,8 +18,37 @@ const CELL_TOP = 0;
 const CELL_BOTTOM = Math.floor((GRID_BOTTOM - 1 - GRID_TOP) / CELL_HEIGHT);
 
 describe('changeTile', () => {
-  test.todo('preserves all elements in the grid except the one specified');
-  test.todo('throws an error if an position outside of the grid is specified');
+  it('preserves all elements in the grid except the one specified', () => {
+    const columns = 3;
+    const rows = 3;
+    const startTile = 'grass';
+    const mockGrid = generateGameTiles(columns, rows, startTile);
+    const updatedTile = 'dirt';
+    const updatedX = 1;
+    const updatedY = 1;
+
+    for (let x = 0; x < columns; ++x) {
+      for (let y = 0; y < columns; ++y) {
+        expect(mockGrid[x][y]).toBe(startTile);
+      }
+    }
+
+    const newGrid = changeTile(
+      { x: updatedX, y: updatedY },
+      updatedTile,
+      mockGrid
+    );
+    for (let x = 0; x < columns; ++x) {
+      for (let y = 0; y < columns; ++y) {
+        if (x === updatedX && y === updatedY) {
+          expect(newGrid[x][y]).toBe(updatedTile);
+        } else {
+          expect(newGrid[x][y]).toBe(startTile);
+        }
+      }
+    }
+  });
+  test.todo('throws an error if any position outside of the grid is specified');
 });
 
 describe('computeGridCell', () => {

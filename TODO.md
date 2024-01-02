@@ -6,9 +6,9 @@
 
 # Prototype: Cut the grass
 
-- Fix horrible row-copying bug to make expand not look disgusting
 - Keep grid centered on screen
 - Scale expand requirements by current level
+- Unit tests for cloneGrid
 - Unit tests for expand
 - Unit tests for generateGameTiles
 - Unit tests for changeTile
