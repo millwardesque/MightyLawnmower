@@ -1,4 +1,10 @@
-import { changeTile, computeGridCell, generateGameTiles } from './utils';
+import { Tile } from './types';
+import {
+  changeTile,
+  cloneGrid,
+  computeGridCell,
+  generateGameTiles,
+} from './utils';
 
 const GRID_LEFT = 2;
 const GRID_RIGHT = 66;
@@ -48,7 +54,55 @@ describe('changeTile', () => {
       }
     }
   });
-  test.todo('throws an error if any position outside of the grid is specified');
+
+  it('throws an error if any position outside of the grid is specified', () => {
+    const columns = 3;
+    const rows = 3;
+    const startTile = 'grass';
+    const mockGrid = generateGameTiles(columns, rows, startTile);
+
+    expect(() =>
+      changeTile({ x: columns + 1, y: rows + 1 }, 'dirt', mockGrid)
+    ).toThrow();
+  });
+});
+
+describe('cloneGrid', () => {
+  it('creates a copy of a populated grid', () => {
+    const columns = 3;
+    const rows = 3;
+    const startTile = 'grass';
+    const mockGrid = generateGameTiles(columns, rows, startTile);
+    const clonedGrid = cloneGrid(mockGrid);
+
+    for (let x = 0; x < columns; ++x) {
+      for (let y = 0; y < columns; ++y) {
+        expect(clonedGrid[x][y]).toBe(mockGrid[x][y]);
+      }
+    }
+  });
+
+  it("doesn't change the original grid when the cloned grid is modified", () => {
+    const columns = 3;
+    const rows = 3;
+    const startTile = 'grass';
+    const updatedTile = 'dirt';
+    const testX = 1;
+    const testY = 1;
+    const mockGrid = generateGameTiles(columns, rows, startTile);
+    const clonedGrid = cloneGrid(mockGrid);
+
+    clonedGrid[testX][testY] = updatedTile;
+
+    expect(mockGrid[testX][testY]).toBe(startTile);
+    expect(clonedGrid[testX][testY]).toBe(updatedTile);
+  });
+
+  it('creates an empty array of the provided grid is also empty', () => {
+    const mockGrid = new Array<Array<Tile>>();
+    const clonedGrid = cloneGrid(mockGrid);
+    expect(clonedGrid.length).toBe(0);
+  });
 });
 
 describe('computeGridCell', () => {

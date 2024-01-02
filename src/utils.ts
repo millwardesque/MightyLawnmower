@@ -3,6 +3,13 @@ import { Coord2D, Tile, TileFillMode, TileGrid } from './types';
 const MAX_ASSUMED_COLUMNS = 1000;
 const MAX_ASSUMED_ROWS = 1000;
 
+/**
+ * Returns a copy of the grid with the tile at 'position' set to 'newValue'.  The original grid is not mutated.
+ * @param position
+ * @param newValue
+ * @param tileGrid
+ * @returns
+ */
 export function changeTile(
   position: Coord2D,
   newValue: Tile,
@@ -14,6 +21,11 @@ export function changeTile(
   return newGrid;
 }
 
+/**
+ * Creates a clone of the grid
+ * @param grid
+ * @returns
+ */
 export function cloneGrid(grid: TileGrid): TileGrid {
   const clonedGrid = [...grid];
   clonedGrid.forEach((rowData, x) => {
