@@ -14,6 +14,7 @@
 
 # Engine stuff
 
+- Make game-state logic into headless components (e.g. useGameOverState, useInGameState, etc);
 - Refactor in-game stuff into separate component like GameOverScreen and GameStartScreen
 - Refactor GameCanvas to Game / GameGrid components and logic
 
