@@ -10,12 +10,12 @@
 - Scale expand requirements by current level
 - Unit tests for expand
 - Unit tests for generateGameTiles
+- Move grassTimer to state
 
 # Engine stuff
 
+- Refactor in-game stuff into separate component like GameOverScreen and GameStartScreen
 - Refactor GameCanvas to Game / GameGrid components and logic
-- Separate game states into separate game state components
-- Probably state manager
 
 ## Out of scope:
 

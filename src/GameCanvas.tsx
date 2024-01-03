@@ -12,10 +12,9 @@ import { useScoreStore } from './ScoreStore';
 import { useGameStateStore } from './GameStateStore';
 import { DirtTile, GrassTile, LavaTile } from './tiles';
 import { TileGrid } from './types';
-import { Score } from './Score';
 import { GameOverScreen } from './GameOverScreen';
 import { GameStartScreen } from './GameStartScreen';
-import { Button } from './Button';
+import { GameHeader } from './GameHeader';
 const CELL_SIZE_IN_PX = 48;
 const CELLS_PER_EXPANSION = 1;
 const EXPAND_GRID_MULTIPLE = 10;
@@ -48,13 +47,6 @@ const GameCanvasGrid = styled.div<{ $numColumns: number; $numRows: number }>`
   );
 
   cursor: default;
-`;
-
-const Header = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-content: center;
 `;
 
 export const GameCanvas: React.FC = () => {
@@ -90,11 +82,14 @@ export const GameCanvas: React.FC = () => {
     resetScore();
   }, [setGameTiles, setGrassTimer, resetScore]);
 
-  useEffect(() => {
-    if (gameState === 'running') {
-      resetGame();
-    }
-  }, [gameState, resetGame]);
+  useEffect(
+    function resetGameWhenChangingToRunning() {
+      if (gameState === 'running') {
+        resetGame();
+      }
+    },
+    [gameState, resetGame]
+  );
 
   useEffect(
     function generateGrassTimer() {
@@ -169,39 +164,22 @@ export const GameCanvas: React.FC = () => {
 
   return (
     <GameCanvasContainer>
-      {gameState !== 'splash-screen' && (
-        <Header>
-          <Score score={score} />
-          <div>{grassTimer}s</div>
-          {gameState === 'running' && (
-            <Button onClick={resetGame}>Reset</Button>
-          )}
-        </Header>
-      )}
       {gameState === 'splash-screen' && <GameStartScreen />}
       {gameState === 'running' && (
-        <GameCanvasGridContainer ref={gridRef}>
-          <GameCanvasGrid
-            $numColumns={gridDimensions.x}
-            $numRows={gridDimensions.y}
-            onClick={onGameCanvasClick}
-          >
-            {cells}
-          </GameCanvasGrid>
-        </GameCanvasGridContainer>
+        <>
+          <GameHeader grassTimer={grassTimer} showReset={true} />
+          <GameCanvasGridContainer ref={gridRef}>
+            <GameCanvasGrid
+              $numColumns={gridDimensions.x}
+              $numRows={gridDimensions.y}
+              onClick={onGameCanvasClick}
+            >
+              {cells}
+            </GameCanvasGrid>
+          </GameCanvasGridContainer>
+        </>
       )}
-      {gameState === 'game-over' && (
-        <GameOverScreen>
-          <Button
-            onClick={() => {
-              resetGame();
-              setGameState('running');
-            }}
-          >
-            Reset
-          </Button>
-        </GameOverScreen>
-      )}
+      {gameState === 'game-over' && <GameOverScreen />}
     </GameCanvasContainer>
   );
 };
