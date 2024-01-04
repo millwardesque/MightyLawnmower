@@ -1,10 +1,10 @@
 import React from 'react';
 
 import './App.css';
-import { GameCanvas } from './GameCanvas';
+import { Game } from './Game';
 
 const App: React.FC = () => {
-  return <GameCanvas />;
+  return <Game />;
 };
 
 export default App;

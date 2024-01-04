@@ -3,6 +3,7 @@
 - ESLint config
 - CI/CD
 - Itch.io
+- Prettier should sort imports
 
 # Prototype: Cut the grass
 

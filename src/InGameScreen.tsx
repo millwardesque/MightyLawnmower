@@ -12,9 +12,9 @@ import { useScoreStore } from './ScoreStore';
 import { useGameStateStore } from './GameStateStore';
 import { DirtTile, GrassTile, LavaTile } from './tiles';
 import { TileGrid } from './types';
-import { GameOverScreen } from './GameOverScreen';
-import { GameStartScreen } from './GameStartScreen';
 import { GameHeader } from './GameHeader';
+import { Stack } from './Stack';
+
 const CELL_SIZE_IN_PX = 48;
 const CELLS_PER_EXPANSION = 1;
 const EXPAND_GRID_MULTIPLE = 10;
@@ -22,15 +22,6 @@ const INITIAL_NUM_ROWS = 3;
 const INITIAL_NUM_COLUMNS = 3;
 const GRASS_GROW_TIMER_INITIAL_DURATION = 3000;
 const GRASS_GROW_TIMER_REDUCTION = 0.9;
-
-const GameCanvasContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 24px;
-  border: 1px dashed #f00;
-  min-width: 600px;
-  align-content: center;
-`;
 
 const GameCanvasGridContainer = styled.div`
   display: flex;
@@ -49,7 +40,7 @@ const GameCanvasGrid = styled.div<{ $numColumns: number; $numRows: number }>`
   cursor: default;
 `;
 
-export const GameCanvas: React.FC = () => {
+export const InGameScreen: React.FC = () => {
   const gridRef = useRef<HTMLDivElement | null>(null);
   const { score, increaseScore, resetScore } = useScoreStore(
     useShallow((state) => ({
@@ -163,24 +154,18 @@ export const GameCanvas: React.FC = () => {
   const gridDimensions = getTileGridDimensions(gameTiles);
 
   return (
-    <GameCanvasContainer>
-      {gameState === 'splash-screen' && <GameStartScreen />}
-      {gameState === 'running' && (
-        <>
-          <GameHeader grassTimer={grassTimer} showReset={true} />
-          <GameCanvasGridContainer ref={gridRef}>
-            <GameCanvasGrid
-              $numColumns={gridDimensions.x}
-              $numRows={gridDimensions.y}
-              onClick={onGameCanvasClick}
-            >
-              {cells}
-            </GameCanvasGrid>
-          </GameCanvasGridContainer>
-        </>
-      )}
-      {gameState === 'game-over' && <GameOverScreen />}
-    </GameCanvasContainer>
+    <Stack gap={8}>
+      <GameHeader grassTimer={grassTimer} showReset={true} />
+      <GameCanvasGridContainer ref={gridRef}>
+        <GameCanvasGrid
+          $numColumns={gridDimensions.x}
+          $numRows={gridDimensions.y}
+          onClick={onGameCanvasClick}
+        >
+          {cells}
+        </GameCanvasGrid>
+      </GameCanvasGridContainer>
+    </Stack>
   );
 };
 
