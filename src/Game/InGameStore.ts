@@ -12,12 +12,28 @@ export type InGameStore = {
 
   grassTimer: number;
   setGrassTimer: (newValue: number) => void;
+
+  resetEverything: () => void;
 };
 
 export const useInGameStore = create<InGameStore>()((set) => ({
-  gameTiles: generateGameTiles(INITIAL_NUM_COLUMNS, INITIAL_NUM_ROWS, 'dirt'),
+  gameTiles: getInitialGameTiles(),
   setGameTiles: (newGrid) => set(() => ({ gameTiles: newGrid })),
 
-  grassTimer: GRASS_GROW_TIMER_INITIAL_DURATION,
+  grassTimer: getInitialGrassTimer(),
   setGrassTimer: (newValue) => set(() => ({ grassTimer: newValue })),
+
+  resetEverything: () =>
+    set(() => ({
+      gameTiles: getInitialGameTiles(),
+      grassTimer: getInitialGrassTimer(),
+    })),
 }));
+
+function getInitialGrassTimer(): number {
+  return GRASS_GROW_TIMER_INITIAL_DURATION;
+}
+
+function getInitialGameTiles(): TileGrid {
+  return generateGameTiles(INITIAL_NUM_COLUMNS, INITIAL_NUM_ROWS, 'dirt');
+}

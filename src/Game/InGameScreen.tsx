@@ -5,7 +5,6 @@ import {
   changeTile,
   computeGridCell,
   expandGrid,
-  generateGameTiles,
   getTileGridDimensions,
 } from './utils';
 import { useScoreStore } from './ScoreStore';
@@ -21,9 +20,6 @@ const CELL_SIZE_IN_PX = 48;
 const CELL_DIMENSIONS = { x: CELL_SIZE_IN_PX, y: CELL_SIZE_IN_PX };
 const CELLS_PER_EXPANSION = 1;
 const EXPAND_GRID_MULTIPLE = 10;
-const INITIAL_NUM_ROWS = 3;
-const INITIAL_NUM_COLUMNS = 3;
-const GRASS_GROW_TIMER_INITIAL_DURATION = 3000;
 
 const GameCanvasGridContainer = styled.div`
   display: flex;
@@ -59,7 +55,7 @@ export const InGameScreen: React.FC = () => {
     }))
   );
 
-  const { gameTiles, grassTimer, setGameTiles, setGrassTimer } = useInGameStore(
+  const { gameTiles, grassTimer, setGameTiles } = useInGameStore(
     useShallow(({ gameTiles, grassTimer, setGameTiles, setGrassTimer }) => ({
       gameTiles,
       grassTimer,
@@ -68,17 +64,9 @@ export const InGameScreen: React.FC = () => {
     }))
   );
 
-  const { onCellClick } = useInGameState();
+  const { onCellClick, resetGame } = useInGameState();
 
   const [shouldExpandGrid, setShouldExpandGrid] = useState(false);
-
-  const resetGame = useCallback(() => {
-    setGameTiles(
-      generateGameTiles(INITIAL_NUM_COLUMNS, INITIAL_NUM_ROWS, 'dirt')
-    );
-    setGrassTimer(GRASS_GROW_TIMER_INITIAL_DURATION);
-    resetScore();
-  }, [setGameTiles, setGrassTimer, resetScore]);
 
   useEffect(
     function resetOnMount() {

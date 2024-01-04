@@ -9,24 +9,39 @@ const GRASS_GROW_TIMER_REDUCTION = 0.9;
 
 type UseInGameStateReturn = {
   onCellClick: (cellCoords: Coord2D) => void;
+  resetGame: () => void;
 };
 
 export function useInGameState(): UseInGameStateReturn {
-  const { increaseScore } = useScoreStore(
+  const { increaseScore, resetScore } = useScoreStore(
     useShallow((state) => ({
-      score: state.score,
       increaseScore: state.increaseScore,
       resetScore: state.resetScore,
     }))
   );
 
-  const { gameTiles, grassTimer, setGameTiles, setGrassTimer } = useInGameStore(
-    useShallow(({ gameTiles, grassTimer, setGameTiles, setGrassTimer }) => ({
-      gameTiles,
-      grassTimer,
-      setGameTiles,
-      setGrassTimer,
-    }))
+  const {
+    gameTiles,
+    grassTimer,
+    resetEverything: resetInGameStore,
+    setGameTiles,
+    setGrassTimer,
+  } = useInGameStore(
+    useShallow(
+      ({
+        gameTiles,
+        grassTimer,
+        resetEverything,
+        setGameTiles,
+        setGrassTimer,
+      }) => ({
+        gameTiles,
+        grassTimer,
+        resetEverything,
+        setGameTiles,
+        setGrassTimer,
+      })
+    )
   );
 
   const onCellClick = useCallback(
@@ -47,7 +62,13 @@ export function useInGameState(): UseInGameStateReturn {
     [gameTiles, grassTimer, increaseScore, setGameTiles, setGrassTimer]
   );
 
+  const resetGame = useCallback(() => {
+    resetInGameStore();
+    resetScore();
+  }, [resetInGameStore, resetScore]);
+
   return {
     onCellClick,
+    resetGame,
   };
 }
