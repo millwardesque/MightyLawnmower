@@ -12,6 +12,7 @@
 - Scale expand requirements by current level
 - Unit tests for expand
 - Unit tests for generateGameTiles
+- Move setGrassTimer(Math.max(100, grassTimer \* GRASS_GROW_TIMER_REDUCTION)); to state management as 'reduceTimer' util
 
 # Engine stuff
 

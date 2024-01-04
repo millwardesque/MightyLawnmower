@@ -11,17 +11,19 @@ import {
 import { useScoreStore } from './ScoreStore';
 import { useGameStateStore } from './GameStateStore';
 import { DirtTile, GrassTile, LavaTile } from './tiles';
-import { TileGrid } from './types';
+import { Coord2D, TileGrid } from './types';
 import { GameHeader } from './GameHeader';
 import { Stack } from '../UI/Stack';
+import { useInGameStore } from './InGameStore';
+import { useInGameState } from './useInGameState';
 
 const CELL_SIZE_IN_PX = 48;
+const CELL_DIMENSIONS = { x: CELL_SIZE_IN_PX, y: CELL_SIZE_IN_PX };
 const CELLS_PER_EXPANSION = 1;
 const EXPAND_GRID_MULTIPLE = 10;
 const INITIAL_NUM_ROWS = 3;
 const INITIAL_NUM_COLUMNS = 3;
 const GRASS_GROW_TIMER_INITIAL_DURATION = 3000;
-const GRASS_GROW_TIMER_REDUCTION = 0.9;
 
 const GameCanvasGridContainer = styled.div`
   display: flex;
@@ -42,7 +44,7 @@ const GameCanvasGrid = styled.div<{ $numColumns: number; $numRows: number }>`
 
 export const InGameScreen: React.FC = () => {
   const gridRef = useRef<HTMLDivElement | null>(null);
-  const { score, increaseScore, resetScore } = useScoreStore(
+  const { score, resetScore } = useScoreStore(
     useShallow((state) => ({
       score: state.score,
       increaseScore: state.increaseScore,
@@ -57,12 +59,17 @@ export const InGameScreen: React.FC = () => {
     }))
   );
 
-  const [gameTiles, setGameTiles] = useState<TileGrid>(
-    generateGameTiles(INITIAL_NUM_COLUMNS, INITIAL_NUM_ROWS, 'dirt')
+  const { gameTiles, grassTimer, setGameTiles, setGrassTimer } = useInGameStore(
+    useShallow(({ gameTiles, grassTimer, setGameTiles, setGrassTimer }) => ({
+      gameTiles,
+      grassTimer,
+      setGameTiles,
+      setGrassTimer,
+    }))
   );
-  const [grassTimer, setGrassTimer] = useState(
-    GRASS_GROW_TIMER_INITIAL_DURATION
-  );
+
+  const { onCellClick } = useInGameState();
+
   const [shouldExpandGrid, setShouldExpandGrid] = useState(false);
 
   const resetGame = useCallback(() => {
@@ -74,17 +81,15 @@ export const InGameScreen: React.FC = () => {
   }, [setGameTiles, setGrassTimer, resetScore]);
 
   useEffect(
-    function resetGameWhenChangingToRunning() {
-      if (gameState === 'running') {
-        resetGame();
-      }
+    function resetOnMount() {
+      resetGame();
     },
-    [gameState, resetGame]
+    [resetGame]
   );
 
   useEffect(
     function generateGrassTimer() {
-      const timer = setInterval(() => {
+      const timer = setInterval(function growGrassOnRandomTile() {
         const gridDimensions = getTileGridDimensions(gameTiles);
         const x = Math.floor(Math.random() * gridDimensions.x);
         const y = Math.floor(Math.random() * gridDimensions.y);
@@ -104,10 +109,10 @@ export const InGameScreen: React.FC = () => {
   );
 
   useEffect(() => {
-    if (gameState === 'running' && isGameOver(gameTiles)) {
+    if (isGameOver(gameTiles)) {
       setGameState('game-over');
     }
-  }, [gameState, gameTiles, setGameState]);
+  }, [gameTiles, setGameState]);
 
   useEffect(() => {
     if (score > 0 && score % EXPAND_GRID_MULTIPLE === 0) {
@@ -137,17 +142,9 @@ export const InGameScreen: React.FC = () => {
         );
       }
 
-      handleGameCanvasClick(
-        gridRef.current,
-        clickEvent,
-        gameTiles,
-        setGameTiles,
-        increaseScore,
-        grassTimer,
-        setGrassTimer
-      );
+      handleGameCanvasClick(gridRef.current, clickEvent, onCellClick);
     },
-    [gameTiles, increaseScore, setGameTiles, grassTimer, setGrassTimer]
+    [onCellClick]
   );
 
   const cells = renderGameTiles(gameTiles);
@@ -172,51 +169,46 @@ export const InGameScreen: React.FC = () => {
 function handleGameCanvasClick(
   gameCanvasElement: HTMLDivElement,
   clickEvent: React.MouseEvent<HTMLDivElement, MouseEvent>,
-  gameTiles: TileGrid,
-  setGameTiles: (newGameTiles: TileGrid) => void,
-  increaseScore: (increment: number) => void,
-  grassTimer: number,
-  setGrassTimer: (newGrassTimer: number) => void
+  onCellClick: (cellCoords: Coord2D) => void
 ): void {
   const canvasRect = gameCanvasElement.getBoundingClientRect();
-
-  const topLeftCorner = {
-    x: canvasRect.left,
-    y: canvasRect.top,
-  };
-  const bottomRightCorner = {
-    x: canvasRect.right,
-    y: canvasRect.bottom,
-  };
+  const { topLeftCorner, bottomRightCorner } =
+    getCornersFromDomRect(canvasRect);
   const clickPosition = { x: clickEvent.clientX, y: clickEvent.clientY };
 
   const clickedCell = computeGridCell(
     clickPosition,
     topLeftCorner,
     bottomRightCorner,
-    { x: CELL_SIZE_IN_PX, y: CELL_SIZE_IN_PX }
+    CELL_DIMENSIONS
   );
 
-  console.log('[CPM] Clicked Cell', {
-    clickedCell,
-    clickEvent,
-    clickPosition,
-    topLeftCorner,
-    bottomRightCorner,
-  }); // @DEBUG
-
-  if (clickedCell !== undefined) {
-    if (gameTiles[clickedCell.x][clickedCell.y] === 'grass') {
-      const updatedGrid = changeTile(clickedCell, 'dirt', gameTiles);
-      setGameTiles(updatedGrid);
-      increaseScore(1);
-      setGrassTimer(Math.max(100, grassTimer * GRASS_GROW_TIMER_REDUCTION));
-    } else if (gameTiles[clickedCell.x][clickedCell.y] === 'dirt') {
-      const updatedGrid = changeTile(clickedCell, 'lava', gameTiles);
-      setGameTiles(updatedGrid);
-      setGrassTimer(Math.max(100, grassTimer * GRASS_GROW_TIMER_REDUCTION));
-    }
+  if (clickedCell === undefined) {
+    throw new Error(
+      `User clicked on the grid at (${clickPosition.x}, ${clickPosition.y}), but the computed grid cell is undefined`
+    );
   }
+
+  onCellClick(clickedCell);
+}
+
+function getCornersFromDomRect(rect: DOMRect): {
+  bottomRightCorner: Coord2D;
+  topLeftCorner: Coord2D;
+} {
+  const topLeftCorner = {
+    x: rect.left,
+    y: rect.top,
+  };
+  const bottomRightCorner = {
+    x: rect.right,
+    y: rect.bottom,
+  };
+
+  return {
+    bottomRightCorner,
+    topLeftCorner,
+  };
 }
 
 function renderGameTiles(gameTiles: TileGrid): Array<React.ReactNode> {
