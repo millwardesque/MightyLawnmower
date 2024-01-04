@@ -1,8 +1,8 @@
 import React from 'react';
-import { Button } from './Button';
-import { Title } from './Title';
+import { Button } from '../UI/Button';
+import { Title } from '../UI/Title';
 import { useGameStateStore } from './GameStateStore';
-import { Stack } from './Stack';
+import { Stack } from '../UI/Stack';
 import { GameHeader } from './GameHeader';
 
 export const GameOverScreen: React.FC = () => {

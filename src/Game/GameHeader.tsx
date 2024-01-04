@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { useScoreStore } from './ScoreStore';
 import { Score } from './Score';
 import { useGameStateStore } from './GameStateStore';
-import { Button } from './Button';
+import { Button } from '../UI/Button';
 
 const Header = styled.div`
   display: flex;

@@ -13,7 +13,7 @@ import { useGameStateStore } from './GameStateStore';
 import { DirtTile, GrassTile, LavaTile } from './tiles';
 import { TileGrid } from './types';
 import { GameHeader } from './GameHeader';
-import { Stack } from './Stack';
+import { Stack } from '../UI/Stack';
 
 const CELL_SIZE_IN_PX = 48;
 const CELLS_PER_EXPANSION = 1;
