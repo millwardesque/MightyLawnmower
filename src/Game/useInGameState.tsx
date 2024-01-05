@@ -8,7 +8,7 @@ import { Coord2D } from './types';
 import { changeTile, expandGrid, isGameOver } from './utils';
 
 const CELLS_PER_EXPANSION = 1;
-const EXPAND_GRID_MULTIPLE = 10; // @DEBUG 10;
+const EXPAND_GRID_MULTIPLE = 10;
 const GRASS_GROW_TIMER_REDUCTION = 0.9;
 
 type UseInGameStateReturn = {
