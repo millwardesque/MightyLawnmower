@@ -6,6 +6,8 @@
 
 # Prototype: Cut the grass
 
+- Expand is broken!
+- Reset is broken!
 - Move grassTimer to state
 - Keep grid centered on screen
 - Scale expand requirements by current level
