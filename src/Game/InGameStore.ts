@@ -12,6 +12,7 @@ export type InGameStore = {
   setGameTiles: (newGrid: TileGrid) => void;
 
   grassTimer: number;
+  scaleGrassTimer: (multiplier: number) => void;
   setGrassTimer: (newValue: number) => void;
 
   resetEverything: () => void;
@@ -22,6 +23,10 @@ export const useInGameStore = create<InGameStore>()((set) => ({
   setGameTiles: (newGrid) => set(() => ({ gameTiles: newGrid })),
 
   grassTimer: getInitialGrassTimer(),
+  scaleGrassTimer: (multiplier: number) =>
+    set((state) => ({
+      grassTimer: Math.max(100, state.grassTimer * multiplier),
+    })),
   setGrassTimer: (newValue) => set(() => ({ grassTimer: newValue })),
 
   resetEverything: () =>

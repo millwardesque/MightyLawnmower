@@ -3,8 +3,8 @@ import styled from 'styled-components';
 import { useShallow } from 'zustand/react/shallow';
 
 import { Stack } from '../UI/Stack';
-import { GameHeader } from './GameHeader';
 import { useGameStateStore } from './GameStateStore';
+import { InGameHeader } from './InGameHeader';
 import { useInGameStore } from './InGameStore';
 import { useScoreStore } from './ScoreStore';
 import { DirtTile, GrassTile, LavaTile } from './tiles';
@@ -41,7 +41,7 @@ const GameCanvasGrid = styled.div<{ $numColumns: number; $numRows: number }>`
 
 export const InGameScreen: React.FC = () => {
   const gridRef = useRef<HTMLDivElement | null>(null);
-  const { score, resetScore } = useScoreStore(
+  const { score } = useScoreStore(
     useShallow((state) => ({
       score: state.score,
       increaseScore: state.increaseScore,
@@ -141,7 +141,7 @@ export const InGameScreen: React.FC = () => {
 
   return (
     <Stack gap={8}>
-      <GameHeader grassTimer={grassTimer} showReset={true} />
+      <InGameHeader grassTimer={grassTimer} />
       <GameCanvasGridContainer ref={gridRef}>
         <GameCanvasGrid
           $numColumns={gridDimensions.x}

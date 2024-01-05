@@ -23,24 +23,23 @@ export function useInGameState(): UseInGameStateReturn {
 
   const {
     gameTiles,
-    grassTimer,
     resetEverything: resetInGameStore,
+    scaleGrassTimer,
     setGameTiles,
-    setGrassTimer,
   } = useInGameStore(
     useShallow(
       ({
         gameTiles,
         grassTimer,
         resetEverything,
+        scaleGrassTimer,
         setGameTiles,
-        setGrassTimer,
       }) => ({
         gameTiles,
         grassTimer,
         resetEverything,
+        scaleGrassTimer,
         setGameTiles,
-        setGrassTimer,
       })
     )
   );
@@ -53,14 +52,14 @@ export function useInGameState(): UseInGameStateReturn {
         const updatedGrid = changeTile(cellCoords, 'dirt', gameTiles);
         setGameTiles(updatedGrid);
         increaseScore(1);
-        setGrassTimer(Math.max(100, grassTimer * GRASS_GROW_TIMER_REDUCTION));
+        scaleGrassTimer(GRASS_GROW_TIMER_REDUCTION);
       } else if (tile === 'dirt') {
         const updatedGrid = changeTile(cellCoords, 'lava', gameTiles);
         setGameTiles(updatedGrid);
-        setGrassTimer(Math.max(100, grassTimer * GRASS_GROW_TIMER_REDUCTION));
+        scaleGrassTimer(GRASS_GROW_TIMER_REDUCTION);
       }
     },
-    [gameTiles, grassTimer, increaseScore, setGameTiles, setGrassTimer]
+    [gameTiles, increaseScore, scaleGrassTimer, setGameTiles]
   );
 
   const resetGame = useCallback(() => {
