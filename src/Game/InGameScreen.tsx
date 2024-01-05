@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { useShallow } from 'zustand/react/shallow';
 
 import { Stack } from '../UI/Stack';
 import { InGameHeader } from './InGameHeader';
