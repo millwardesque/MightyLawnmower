@@ -5,7 +5,12 @@ import { useGameStateStore } from './GameStateStore';
 import { useInGameStore } from './InGameStore';
 import { useScoreStore } from './ScoreStore';
 import { Coord2D } from './types';
-import { changeTile, expandGrid, isGameOver } from './utils';
+import {
+  changeTile,
+  expandGrid,
+  getTileGridDimensions,
+  isGameOver,
+} from './utils';
 
 const CELLS_PER_EXPANSION = 1;
 const EXPAND_GRID_MULTIPLE = 10;
@@ -33,6 +38,7 @@ export function useInGameState(): UseInGameStateReturn {
 
   const {
     gameTiles,
+    grassTimer,
     resetEverything: resetInGameStore,
     scaleGrassTimer,
     setGameTiles,
@@ -77,6 +83,27 @@ export function useInGameState(): UseInGameStateReturn {
       }
     },
     [gameTiles, increaseScore, scaleGrassTimer, setGameTiles]
+  );
+
+  useEffect(
+    function generateGrassTimer() {
+      const timer = setInterval(function growGrassOnRandomTile() {
+        const gridDimensions = getTileGridDimensions(gameTiles);
+        const x = Math.floor(Math.random() * gridDimensions.x);
+        const y = Math.floor(Math.random() * gridDimensions.y);
+
+        const currentTile = gameTiles[x][y];
+        if (currentTile === 'dirt') {
+          const updatedGrid = changeTile({ x, y }, 'grass', gameTiles);
+          setGameTiles(updatedGrid);
+        }
+      }, grassTimer);
+
+      return () => {
+        clearInterval(timer);
+      };
+    },
+    [gameTiles, grassTimer, setGameTiles]
   );
 
   useEffect(

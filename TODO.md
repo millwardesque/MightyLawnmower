@@ -14,8 +14,7 @@
 
 # Engine stuff
 
-- Make game-state logic into headless components (e.g. useGameOverState, useInGameState, etc);
-- Consider grouping actions under 'actions' bucket'
+- Consider grouping store actions under 'actions' bucket'
 
 ## Out of scope:
 

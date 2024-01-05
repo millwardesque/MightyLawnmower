@@ -8,7 +8,7 @@ import { useInGameStore } from './InGameStore';
 import { DirtTile, GrassTile, LavaTile } from './tiles';
 import { Coord2D, TileGrid } from './types';
 import { useInGameState } from './useInGameState';
-import { changeTile, computeGridCell, getTileGridDimensions } from './utils';
+import { computeGridCell, getTileGridDimensions } from './utils';
 
 const CELL_SIZE_IN_PX = 48;
 const CELL_DIMENSIONS = { x: CELL_SIZE_IN_PX, y: CELL_SIZE_IN_PX };
@@ -32,15 +32,7 @@ const GameCanvasGrid = styled.div<{ $numColumns: number; $numRows: number }>`
 
 export const InGameScreen: React.FC = () => {
   const gridRef = useRef<HTMLDivElement | null>(null);
-
-  const { gameTiles, grassTimer, setGameTiles } = useInGameStore(
-    useShallow(({ gameTiles, grassTimer, setGameTiles }) => ({
-      gameTiles,
-      grassTimer,
-      setGameTiles,
-    }))
-  );
-
+  const gameTiles = useInGameStore(({ gameTiles }) => gameTiles);
   const { onCellClick, resetGame } = useInGameState();
 
   useEffect(
@@ -48,27 +40,6 @@ export const InGameScreen: React.FC = () => {
       resetGame();
     },
     [resetGame]
-  );
-
-  useEffect(
-    function generateGrassTimer() {
-      const timer = setInterval(function growGrassOnRandomTile() {
-        const gridDimensions = getTileGridDimensions(gameTiles);
-        const x = Math.floor(Math.random() * gridDimensions.x);
-        const y = Math.floor(Math.random() * gridDimensions.y);
-
-        const currentTile = gameTiles[x][y];
-        if (currentTile === 'dirt') {
-          const updatedGrid = changeTile({ x, y }, 'grass', gameTiles);
-          setGameTiles(updatedGrid);
-        }
-      }, grassTimer);
-
-      return () => {
-        clearInterval(timer);
-      };
-    },
-    [gameTiles, grassTimer, setGameTiles]
   );
 
   const onGameCanvasClick = useCallback(
@@ -89,7 +60,7 @@ export const InGameScreen: React.FC = () => {
 
   return (
     <Stack gap={8}>
-      <InGameHeader grassTimer={grassTimer} />
+      <InGameHeader />
       <GameCanvasGridContainer ref={gridRef}>
         <GameCanvasGrid
           $numColumns={gridDimensions.x}
