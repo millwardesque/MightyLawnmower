@@ -1,8 +1,9 @@
 import { useCallback } from 'react';
 import { useShallow } from 'zustand/react/shallow';
-import { Coord2D } from './types';
+
 import { useInGameStore } from './InGameStore';
 import { useScoreStore } from './ScoreStore';
+import { Coord2D } from './types';
 import { changeTile } from './utils';
 
 const GRASS_GROW_TIMER_REDUCTION = 0.9;

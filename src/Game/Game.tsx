@@ -1,10 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { useGameStateStore } from './GameStateStore';
-
 import { GameOverScreen } from './GameOverScreen';
 import { GameStartScreen } from './GameStartScreen';
+import { useGameStateStore } from './GameStateStore';
 import { InGameScreen } from './InGameScreen';
 
 const GameContainer = styled.div`

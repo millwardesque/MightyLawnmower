@@ -1,9 +1,10 @@
 import React from 'react';
+
 import { Button } from '../UI/Button';
-import { Title } from '../UI/Title';
-import { useGameStateStore } from './GameStateStore';
 import { Stack } from '../UI/Stack';
+import { Title } from '../UI/Title';
 import { GameHeader } from './GameHeader';
+import { useGameStateStore } from './GameStateStore';
 
 export const GameOverScreen: React.FC = () => {
   const setGameState = useGameStateStore((state) => state.setState);

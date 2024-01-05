@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { useScoreStore } from './ScoreStore';
-import { Score } from './Score';
-import { useGameStateStore } from './GameStateStore';
 import { Button } from '../UI/Button';
+import { useGameStateStore } from './GameStateStore';
+import { Score } from './Score';
+import { useScoreStore } from './ScoreStore';
 
 const Header = styled.div`
   display: flex;

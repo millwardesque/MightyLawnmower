@@ -1,20 +1,21 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useShallow } from 'zustand/react/shallow';
+
+import { Stack } from '../UI/Stack';
+import { GameHeader } from './GameHeader';
+import { useGameStateStore } from './GameStateStore';
+import { useInGameStore } from './InGameStore';
+import { useScoreStore } from './ScoreStore';
+import { DirtTile, GrassTile, LavaTile } from './tiles';
+import { Coord2D, TileGrid } from './types';
+import { useInGameState } from './useInGameState';
 import {
   changeTile,
   computeGridCell,
   expandGrid,
   getTileGridDimensions,
 } from './utils';
-import { useScoreStore } from './ScoreStore';
-import { useGameStateStore } from './GameStateStore';
-import { DirtTile, GrassTile, LavaTile } from './tiles';
-import { Coord2D, TileGrid } from './types';
-import { GameHeader } from './GameHeader';
-import { Stack } from '../UI/Stack';
-import { useInGameStore } from './InGameStore';
-import { useInGameState } from './useInGameState';
 
 const CELL_SIZE_IN_PX = 48;
 const CELL_DIMENSIONS = { x: CELL_SIZE_IN_PX, y: CELL_SIZE_IN_PX };
