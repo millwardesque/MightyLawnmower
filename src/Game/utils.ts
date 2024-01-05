@@ -125,3 +125,7 @@ export function getTileGridDimensions(grid: TileGrid): Coord2D {
     y: grid[0].length,
   };
 }
+
+export function isGameOver(gameTiles: TileGrid): boolean {
+  return gameTiles.flat().every((tile) => tile !== 'dirt');
+}

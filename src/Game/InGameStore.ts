@@ -15,6 +15,9 @@ export type InGameStore = {
   scaleGrassTimer: (multiplier: number) => void;
   setGrassTimer: (newValue: number) => void;
 
+  shouldExpandGrid: boolean;
+  setShouldExpandGrid: (shouldExpandGrid: boolean) => void;
+
   resetEverything: () => void;
 };
 
@@ -29,10 +32,15 @@ export const useInGameStore = create<InGameStore>()((set) => ({
     })),
   setGrassTimer: (newValue) => set(() => ({ grassTimer: newValue })),
 
+  shouldExpandGrid: false,
+  setShouldExpandGrid: (shouldExpandGrid: boolean) =>
+    set(() => ({ shouldExpandGrid })),
+
   resetEverything: () =>
     set(() => ({
       gameTiles: getInitialGameTiles(),
       grassTimer: getInitialGrassTimer(),
+      shouldExpandGrid: false,
     })),
 }));
 

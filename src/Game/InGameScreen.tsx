@@ -1,26 +1,17 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useShallow } from 'zustand/react/shallow';
 
 import { Stack } from '../UI/Stack';
-import { useGameStateStore } from './GameStateStore';
 import { InGameHeader } from './InGameHeader';
 import { useInGameStore } from './InGameStore';
-import { useScoreStore } from './ScoreStore';
 import { DirtTile, GrassTile, LavaTile } from './tiles';
 import { Coord2D, TileGrid } from './types';
 import { useInGameState } from './useInGameState';
-import {
-  changeTile,
-  computeGridCell,
-  expandGrid,
-  getTileGridDimensions,
-} from './utils';
+import { changeTile, computeGridCell, getTileGridDimensions } from './utils';
 
 const CELL_SIZE_IN_PX = 48;
 const CELL_DIMENSIONS = { x: CELL_SIZE_IN_PX, y: CELL_SIZE_IN_PX };
-const CELLS_PER_EXPANSION = 1;
-const EXPAND_GRID_MULTIPLE = 10;
 
 const GameCanvasGridContainer = styled.div`
   display: flex;
@@ -41,33 +32,16 @@ const GameCanvasGrid = styled.div<{ $numColumns: number; $numRows: number }>`
 
 export const InGameScreen: React.FC = () => {
   const gridRef = useRef<HTMLDivElement | null>(null);
-  const { score } = useScoreStore(
-    useShallow((state) => ({
-      score: state.score,
-      increaseScore: state.increaseScore,
-      resetScore: state.resetScore,
-    }))
-  );
-
-  const { state: gameState, setState: setGameState } = useGameStateStore(
-    useShallow((state) => ({
-      state: state.state,
-      setState: state.setState,
-    }))
-  );
 
   const { gameTiles, grassTimer, setGameTiles } = useInGameStore(
-    useShallow(({ gameTiles, grassTimer, setGameTiles, setGrassTimer }) => ({
+    useShallow(({ gameTiles, grassTimer, setGameTiles }) => ({
       gameTiles,
       grassTimer,
       setGameTiles,
-      setGrassTimer,
     }))
   );
 
   const { onCellClick, resetGame } = useInGameState();
-
-  const [shouldExpandGrid, setShouldExpandGrid] = useState(false);
 
   useEffect(
     function resetOnMount() {
@@ -96,32 +70,6 @@ export const InGameScreen: React.FC = () => {
     },
     [gameTiles, grassTimer, setGameTiles]
   );
-
-  useEffect(() => {
-    if (isGameOver(gameTiles)) {
-      setGameState('game-over');
-    }
-  }, [gameTiles, setGameState]);
-
-  useEffect(() => {
-    if (score > 0 && score % EXPAND_GRID_MULTIPLE === 0) {
-      setShouldExpandGrid(true);
-    }
-  }, [score, setShouldExpandGrid]);
-
-  useEffect(() => {
-    if (shouldExpandGrid) {
-      const newGameTiles = expandGrid(gameTiles, CELLS_PER_EXPANSION, 'dirt');
-      setGameTiles(newGameTiles);
-      setShouldExpandGrid(false);
-    }
-  }, [
-    gameState,
-    gameTiles,
-    setGameTiles,
-    shouldExpandGrid,
-    setShouldExpandGrid,
-  ]);
 
   const onGameCanvasClick = useCallback(
     (clickEvent: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -162,7 +110,7 @@ function handleGameCanvasClick(
 ): void {
   const canvasRect = gameCanvasElement.getBoundingClientRect();
   const { topLeftCorner, bottomRightCorner } =
-    getCornersFromDomRect(canvasRect);
+    getCornersFromDOMRect(canvasRect);
   const clickPosition = { x: clickEvent.clientX, y: clickEvent.clientY };
 
   const clickedCell = computeGridCell(
@@ -181,7 +129,7 @@ function handleGameCanvasClick(
   onCellClick(clickedCell);
 }
 
-function getCornersFromDomRect(rect: DOMRect): {
+function getCornersFromDOMRect(rect: DOMRect): {
   bottomRightCorner: Coord2D;
   topLeftCorner: Coord2D;
 } {
@@ -242,8 +190,4 @@ function renderGameTiles(gameTiles: TileGrid): Array<React.ReactNode> {
   }
 
   return cells;
-}
-
-function isGameOver(gameTiles: TileGrid): boolean {
-  return gameTiles.flat().every((tile) => tile !== 'dirt');
 }
